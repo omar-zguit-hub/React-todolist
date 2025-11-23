@@ -1,6 +1,128 @@
 .App {
-  text-align: center;
+  text-align: center;  
 }
+
+body{
+  background-color: #2e2e2e;
+  color: white;
+}
+
+/* style container */
+#boxBody{
+  background-color: #090d29;
+  height: 450px;
+  margin-top: 100px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  color: white;
+}
+#container{ 
+  color: white;
+}
+#appbar{
+  background-color: rgb(0,0,250);
+  border-radius: 20px 20px 0px 0px;
+}
+#listItem{
+  background-color: #7878784e;
+  border-radius: 10px;
+  margin-bottom: 10px;
+} 
+
+
+/* icons */
+#DeleteIcon{
+  cursor: pointer;
+  padding: 5px;
+  color: rgb(255, 58, 58);
+}
+ 
+#EditIcon{
+  padding: 5px;
+  cursor: pointer;
+  color: rgba(132, 154, 255, 1);
+}
+
+/* ---------------------------------------*/
+
+#SnakBarAlert{
+  width: 100%;
+}
+
+#boxTest{
+  display: flex;
+  gap: 2px;
+  margin: 12px; 
+}
+#modalNox{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 350px;
+  border-radius: 10px;
+  padding: 3ps;
+}
+
+#tabs .MuiTab-root {
+  color: white;
+}
+#tabs .Mui-selected {
+  color: white !important;
+}
+
+
+
+
+#boxText{
+  display: flex;
+  margin: 10px;
+}
+#boxText .MuiInputBase-input {
+  color: white;  
+}
+
+#boxText .MuiInputLabel-root {
+  color: #aaa;  
+}
+
+#boxText .MuiInputLabel-root.Mui-focused {
+  color: #1976d2; 
+}
+
+#boxText .MuiOutlinedInput-root fieldset {
+  border-color: #555; 
+}
+
+#boxText .MuiOutlinedInput-root:hover fieldset {
+  border-color: #1976d2; 
+}
+
+#boxText .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: #1976d2;  
+}
+
+#boxText .MuiButton-root {
+  background-color: #1976d2;  
+  color: white;  
+}
+
+#boxText .MuiButton-root:hover {
+  background-color: #1565c0; 
+}
+
+#boxText .MuiButton-root:disabled {
+  background-color: #333;  
+  color: #666;
+}
+
+
+
+
+
+
+
 
 .App-logo {
   height: 40vmin;
