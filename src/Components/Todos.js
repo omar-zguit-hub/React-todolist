@@ -19,15 +19,19 @@ import {
 
 import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
+import TaskReducer from "../Reducers/TaskReducer";
 export default function Todos() {
+
+  // useReducer
+  const [tasks, dispatch] = useReducer(TaskReducer, []);
+
   const [switchTab, setSwitchTab] = useState(0);
-  const [todos, setTodos] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [IdSelected, setIdSelected] = useState(null);
   const [snackBarMessage, setSnackBarMessage] = useState("");
@@ -36,16 +40,22 @@ export default function Todos() {
 
   // -------- LOAD FROM LOCAL STORAGE --------
   useEffect(() => {
-    const storage = JSON.parse(localStorage.getItem("todos") || "[]");
-    if (storage.length > 0) {
-      setTodos(storage);
-    }
+    dispatch({
+      type: "SET_TASKS",
+    });
   }, []);
+
+  // ------ // Toggle Snackbar visibility with delay --------
+  function handleShowAndCloseSnackBar() {
+    setShowSnackbar(true);
+    setTimeout(() => {
+      setShowSnackbar(false);
+    }, 1333);
+  }
 
   // -------- CLOSE MODAL --------
   function handleClose() {
     setShowModal(false);
-    setShowSnackbar(false);
     setIdSelected(null);
   }
 
@@ -53,63 +63,50 @@ export default function Todos() {
   function handleAddTask() {
     // EDIT MODE
     if (IdSelected !== null) {
-      const EditedTask = todos.map((t) =>
-        t.id === IdSelected ? { ...t, title: newTask } : t
-      );
+      dispatch({
+        type: "EDITED",
+        payload: {
+          ID: IdSelected,
+          titleNewTask: newTask,
+        },
+      });
 
-      setTodos(EditedTask);
-      localStorage.setItem("todos", JSON.stringify(EditedTask));
       setSnackBarMessage("Task Edited");
-      setShowSnackbar(true);
-      setTimeout(() => {
-        setShowSnackbar(false);
-      }, 1333);
+      handleShowAndCloseSnackBar();
     }
     // ADD MODE
     else {
-      const AddedTask = {
-        id: Date.now(),
-        title: newTask,
-        isCompleted: false,
-      };
-
-      const todosAddedTask = [...todos, AddedTask];
-
-      setTodos(todosAddedTask);
-      localStorage.setItem("todos", JSON.stringify(todosAddedTask));
+      dispatch({
+        type: "ADDED",
+        payload: {
+          titleNewTask: newTask,
+        },
+      });
       setSnackBarMessage("Task Added");
-      setShowSnackbar(true);
-      setTimeout(() => {
-        setShowSnackbar(false);
-      }, 1333);
+      handleShowAndCloseSnackBar();
     }
-
     setNewTask("");
     setIdSelected(null);
     setSwitchTab(0);
-    setShowSnackbar(true);
   }
 
   // -------- DELETE TASK --------
   function handleDeleteClick() {
-    const deletedTask = todos.filter((t) => t.id !== IdSelected);
-
-    setTodos(deletedTask);
-    localStorage.setItem("todos", JSON.stringify(deletedTask));
-
+    dispatch({
+      type: "DELETED",
+      payload: {
+        ID: IdSelected,
+      },
+    });
     setShowModal(false);
-    setShowSnackbar(true);
     setSnackBarMessage("Task Deleted");
     setIdSelected(null);
-    setShowSnackbar(true);
-    setTimeout(() => {
-      setShowSnackbar(false);
-    }, 1333);
+    handleShowAndCloseSnackBar();
   }
 
   // -------- EDIT TASK --------
   function handleEditClick(id) {
-    const Task = todos.find((t) => t.id === id);
+    const Task = tasks.find((t) => t.id === id);
 
     if (Task) {
       setNewTask(Task.title);
@@ -119,31 +116,23 @@ export default function Todos() {
 
   // -------- TOGGLE COMPLETE/INCOMPLETE --------
   function handleCheckClick(id) {
-    const updated = todos.map((t) =>
-      t.id === id ? { ...t, isCompleted: !t.isCompleted } : t
-    );
-
-    const clicked = updated.find((t) => t.id === id);
-
-    setTodos(updated);
-    localStorage.setItem("todos", JSON.stringify(updated));
-
-    setShowSnackbar(true);
+    dispatch({
+      type: "CHECKED",
+      payload: { id: id },
+    });
+    const clicked = tasks.find((t) => t.id === id);
     setSnackBarMessage(
       clicked.isCompleted ? "Task Incompleted" : "Task Completed"
     );
-    setShowSnackbar(true);
-    setTimeout(() => {
-      setShowSnackbar(false);
-    }, 1333);
+    handleShowAndCloseSnackBar();
   }
 
   // -------- FILTER --------
-  const FilteredTodos = useMemo(() => {
-    if (switchTab === 1) return todos.filter((t) => !t.isCompleted);
-    if (switchTab === 2) return todos.filter((t) => t.isCompleted);
-    return todos;
-  }, [switchTab, todos]);
+  const Filteredtasks = useMemo(() => {
+    if (switchTab === 1) return tasks.filter((t) => !t.isCompleted);
+    if (switchTab === 2) return tasks.filter((t) => t.isCompleted);
+    return tasks;
+  }, [switchTab, tasks]);
 
   return (
     <>
@@ -171,7 +160,7 @@ export default function Todos() {
           </Tabs>
 
           <List sx={{ flex: 1, overflowY: "auto", margin: "20px" }}>
-            {FilteredTodos.map((task) => (
+            {Filteredtasks.map((task) => (
               <ListItem key={task.id} id="listItem">
                 <ListItemText
                   primary={task.title}
