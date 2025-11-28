@@ -1,11 +1,13 @@
-import './App.css';
-import Todos from './Components/Todos';
-
+import "./App.css";
+import Todos from "./Components/Todos";
+import { ProviderReducer } from "./Contexts/ContextReducer";
 function App() {
   return (
     <div className="App">
+      <ProviderReducer>
         <Todos />
-    </div>  
+      </ProviderReducer>
+    </div>
   );
 }
 

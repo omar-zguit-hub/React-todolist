@@ -16,20 +16,22 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import TaskReducer from "../Reducers/TaskReducer";
-export default function Todos() {
+import { useTasks } from "../Contexts/ContextReducer";
 
-  // useReducer
-  const [tasks, dispatch] = useReducer(TaskReducer, []);
+export default function Todos() {
+  const { tasks, dispatch } = useTasks();
 
   const [switchTab, setSwitchTab] = useState(0);
   const [newTask, setNewTask] = useState("");
@@ -37,6 +39,7 @@ export default function Todos() {
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [toggleAccordion, setToggleAccordion] = useState(true);
 
   // -------- LOAD FROM LOCAL STORAGE --------
   useEffect(() => {
@@ -136,93 +139,113 @@ export default function Todos() {
 
   return (
     <>
-      <Container maxWidth="sm" id="container">
-        <Box id="boxBody">
-          <AppBar position="static" id="appbar">
-            <Toolbar variant="dense">
-              <IconButton color="inherit">
-                <MenuIcon />
-              </IconButton>
+      <Accordion sx={{ margin: "250px" }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+          onClick={() => {
+            setToggleAccordion(!toggleAccordion);
+          }}
+        >
+          <Typography variant="h4">
+            {toggleAccordion ? "Start" : "End"} Your <mark>To-Do List</mark>
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ paddingBottom: "75px" }}>
+          <Container maxWidth="sm" id="container">
+            <Box id="boxBody">
+              <AppBar position="static" id="appbar">
+                <Toolbar variant="dense">
+                  <IconButton color="inherit">
+                    <MenuIcon />
+                  </IconButton>
 
-              <Typography variant="h5">My Todo List</Typography>
-            </Toolbar>
-          </AppBar>
+                  <Typography variant="h5">My Todo List</Typography>
+                </Toolbar>
+              </AppBar>
 
-          <Tabs
-            centered
-            value={switchTab}
-            onChange={(e, newTab) => setSwitchTab(newTab)}
-            id="tabs"
-          >
-            <Tab label="All tasks" />
-            <Tab label="Incomplete" />
-            <Tab label="Completed" />
-          </Tabs>
+              <Tabs
+                centered
+                value={switchTab}
+                onChange={(e, newTab) => setSwitchTab(newTab)}
+                id="tabs"
+              >
+                <Tab label="All tasks" />
+                <Tab label="Incomplete" />
+                <Tab label="Completed" />
+              </Tabs>
 
-          <List sx={{ flex: 1, overflowY: "auto", margin: "20px" }}>
-            {Filteredtasks.map((task) => (
-              <ListItem key={task.id} id="listItem">
-                <ListItemText
-                  primary={task.title}
-                  sx={{
-                    textDecoration: task.isCompleted ? "line-through" : "none",
-                  }}
+              <List sx={{ flex: 1, overflowY: "auto", margin: "20px" }}>
+                {Filteredtasks.map((task) => (
+                  <ListItem key={task.id} id="listItem">
+                    <ListItemText
+                      primary={task.title}
+                      sx={{
+                        textDecoration: task.isCompleted
+                          ? "line-through"
+                          : "none",
+                      }}
+                    />
+                    <Tooltip title="Delete Task" arrow>
+                      <DeleteIcon
+                        id="DeleteIcon"
+                        onClick={() => {
+                          setIdSelected(task.id);
+                          setShowModal(true);
+                        }}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Edit Task" arrow>
+                      <EditIcon
+                        id="EditIcon"
+                        onClick={() => handleEditClick(task.id)}
+                      />
+                    </Tooltip>
+
+                    <Tooltip
+                      title={
+                        task.isCompleted
+                          ? "Mark as Incomplete"
+                          : "Mark as Complete"
+                      }
+                      arrow
+                    >
+                      <CheckCircleIcon
+                        id="CheckCircleIcon"
+                        onClick={() => handleCheckClick(task.id)}
+                        sx={{
+                          cursor: "pointer",
+                          color: task.isCompleted ? "#2dce00be" : "grey",
+                          padding: "5px",
+                        }}
+                      />
+                    </Tooltip>
+                  </ListItem>
+                ))}
+              </List>
+
+              <Box id="boxText">
+                <TextField
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  size="small"
+                  fullWidth
+                  label="Add new task"
                 />
-                <Tooltip title="Delete Task" arrow>
-                  <DeleteIcon
-                    id="DeleteIcon"
-                    onClick={() => {
-                      setIdSelected(task.id);
-                      setShowModal(true);
-                    }}
-                  />
-                </Tooltip>
-                <Tooltip title="Edit Task" arrow>
-                  <EditIcon
-                    id="EditIcon"
-                    onClick={() => handleEditClick(task.id)}
-                  />
-                </Tooltip>
 
-                <Tooltip
-                  title={
-                    task.isCompleted ? "Mark as Incomplete" : "Mark as Complete"
-                  }
-                  arrow
+                <Button
+                  disabled={!newTask.trim()}
+                  onClick={handleAddTask}
+                  variant="contained"
                 >
-                  <CheckCircleIcon
-                    id="CheckCircleIcon"
-                    onClick={() => handleCheckClick(task.id)}
-                    sx={{
-                      cursor: "pointer",
-                      color: task.isCompleted ? "#2dce00be" : "grey",
-                      padding: "5px",
-                    }}
-                  />
-                </Tooltip>
-              </ListItem>
-            ))}
-          </List>
-
-          <Box id="boxText">
-            <TextField
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              size="small"
-              fullWidth
-              label="Add new task"
-            />
-
-            <Button
-              disabled={!newTask.trim()}
-              onClick={handleAddTask}
-              variant="contained"
-            >
-              {IdSelected ? "Save" : "Add"}
-            </Button>
-          </Box>
-        </Box>
-      </Container>
+                  {IdSelected ? "Save" : "Add"}
+                </Button>
+              </Box>
+            </Box>
+          </Container>
+        </AccordionDetails>
+      </Accordion>
 
       {/* SNACKBAR */}
       <Snackbar open={showSnackbar} autoHideDuration={1500}>
