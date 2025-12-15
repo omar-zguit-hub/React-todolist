@@ -23,13 +23,15 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useEffect, useMemo, useState } from "react";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import UnpublishedIcon from "@mui/icons-material/Unpublished";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { useTasks } from "../Contexts/ContextReducer";
-
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
 export default function Todos() {
   const { tasks, dispatch } = useTasks();
 
@@ -39,6 +41,7 @@ export default function Todos() {
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
   const [toggleAccordion, setToggleAccordion] = useState(true);
 
   // -------- LOAD FROM LOCAL STORAGE --------
@@ -77,6 +80,7 @@ export default function Todos() {
       setSnackBarMessage("Task Edited");
       handleShowAndCloseSnackBar();
     }
+
     // ADD MODE
     else {
       dispatch({
@@ -137,115 +141,184 @@ export default function Todos() {
     return tasks;
   }, [switchTab, tasks]);
 
+  const allTasks = tasks.length;
+  const taskCompleted = tasks.filter((t) => t.isCompleted).length;
+  const taskInCompleted = tasks.filter((t) => !t.isCompleted).length;
+
   return (
     <>
-      <Accordion sx={{ margin: "250px" }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-          onClick={() => {
-            setToggleAccordion(!toggleAccordion);
+      <Box>
+        <Accordion
+          expanded={!toggleAccordion}
+          sx={{
+            position: "relative",
+            margin: toggleAccordion ? "auto" : 0,
+            top: toggleAccordion ? "250px" : 0,
+            left: toggleAccordion ? 0 : 0,
+            width: toggleAccordion ? "60%" : "100%",
+            minHeight: toggleAccordion ? "auto" : "100vh",
+            transition: "all 0.5s ease-in-out",
+            borderRadius: toggleAccordion ? "8px" : 0,
+            overflow: "hidden",
           }}
         >
-          <Typography variant="h4">
-            {toggleAccordion ? "Start" : "End"} Your <mark>To-Do List</mark>
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ paddingBottom: "75px" }}>
-          <Container maxWidth="sm" id="container">
-            <Box id="boxBody">
-              <AppBar position="static" id="appbar">
-                <Toolbar variant="dense">
-                  <IconButton color="inherit">
-                    <MenuIcon />
-                  </IconButton>
-
-                  <Typography variant="h5">My Todo List</Typography>
-                </Toolbar>
-              </AppBar>
-
-              <Tabs
-                centered
-                value={switchTab}
-                onChange={(e, newTab) => setSwitchTab(newTab)}
-                id="tabs"
-              >
-                <Tab label="All tasks" />
-                <Tab label="Incomplete" />
-                <Tab label="Completed" />
-              </Tabs>
-
-              <List sx={{ flex: 1, overflowY: "auto", margin: "20px" }}>
-                {Filteredtasks.map((task) => (
-                  <ListItem key={task.id} id="listItem">
-                    <ListItemText
-                      primary={task.title}
-                      sx={{
-                        textDecoration: task.isCompleted
-                          ? "line-through"
-                          : "none",
-                      }}
-                    />
-                    <Tooltip title="Delete Task" arrow>
-                      <DeleteIcon
-                        id="DeleteIcon"
-                        onClick={() => {
-                          setIdSelected(task.id);
-                          setShowModal(true);
-                        }}
-                      />
-                    </Tooltip>
-                    <Tooltip title="Edit Task" arrow>
-                      <EditIcon
-                        id="EditIcon"
-                        onClick={() => handleEditClick(task.id)}
-                      />
-                    </Tooltip>
-
-                    <Tooltip
-                      title={
-                        task.isCompleted
-                          ? "Mark as Incomplete"
-                          : "Mark as Complete"
-                      }
-                      arrow
-                    >
-                      <CheckCircleIcon
-                        id="CheckCircleIcon"
-                        onClick={() => handleCheckClick(task.id)}
-                        sx={{
-                          cursor: "pointer",
-                          color: task.isCompleted ? "#2dce00be" : "grey",
-                          padding: "5px",
-                        }}
-                      />
-                    </Tooltip>
-                  </ListItem>
-                ))}
-              </List>
-
-              <Box id="boxText">
-                <TextField
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  size="small"
-                  fullWidth
-                  label="Add new task"
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            onClick={() => setToggleAccordion(!toggleAccordion)}
+            aria-controls="panel1-content"
+            id="panel1-header"
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              
+            }}
+          > 
+            <Typography
+              variant="h4"
+              sx={{ fontSize: { xs: "20px", sm: "24px", md: "28px" } }}
+            >
+              {toggleAccordion ? "Start" : "End"} Your <mark>To-Do List</mark>
+            </Typography>
+ 
+            <Box
+              sx={{
+                display: "flex",
+                gap: { xs: 1, sm: 2, md: 4 },
+                alignItems: "center",
+                marginLeft: "auto",
+                mr:2
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <FormatListBulletedIcon
+                  sx={{ fontSize: { xs: 24, sm: 32, md: 40 } }}
                 />
+                <Typography sx={{ fontSize: { xs: 16, sm: 20, md: 28 } }}>
+                  {allTasks}
+                </Typography>
+              </Box>
 
-                <Button
-                  disabled={!newTask.trim()}
-                  onClick={handleAddTask}
-                  variant="contained"
-                >
-                  {IdSelected ? "Save" : "Add"}
-                </Button>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <TaskAltIcon sx={{ fontSize: { xs: 24, sm: 32, md: 40 } }} />
+                <Typography sx={{ fontSize: { xs: 16, sm: 20, md: 28 } }}>
+                  {taskCompleted}
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <UnpublishedIcon
+                  sx={{ fontSize: { xs: 24, sm: 32, md: 40 } }}
+                />
+                <Typography sx={{ fontSize: { xs: 16, sm: 20, md: 28 } }}>
+                  {taskInCompleted}
+                </Typography>
               </Box>
             </Box>
-          </Container>
-        </AccordionDetails>
-      </Accordion>
+          </AccordionSummary>
+
+          <AccordionDetails
+            sx={{
+              height: toggleAccordion ? "auto" : "100vh",
+              overflowY: "auto",
+              padding: "20px",
+            }}
+          >
+            <Container maxWidth="sm" id="container">
+              <Box id="boxBody">
+                <AppBar position="static" id="appbar">
+                  <Toolbar variant="dense">
+                    <IconButton color="inherit">
+                      <MenuIcon />
+                    </IconButton>
+
+                    <Typography variant="h5">My Todo List</Typography>
+                  </Toolbar>
+                </AppBar>
+
+                <Tabs
+                  centered
+                  value={switchTab}
+                  onChange={(e, newTab) => setSwitchTab(newTab)}
+                  id="tabs"
+                >
+                  <Tab label="All tasks" />
+                  <Tab label="Incomplete" />
+                  <Tab label="Completed" />
+                </Tabs>
+
+                <List sx={{ flex: 1, overflowY: "auto", margin: "20px" }}>
+                  {Filteredtasks.map((task) => (
+                    <ListItem key={task.id} id="listItem">
+                      <ListItemText
+                        primary={task.title}
+                        sx={{
+                          textDecoration: task.isCompleted
+                            ? "line-through"
+                            : "none",
+                        }}
+                      />
+                      <Tooltip title="Delete Task" arrow>
+                        <DeleteIcon
+                          id="DeleteIcon"
+                          onClick={() => {
+                            setIdSelected(task.id);
+                            setShowModal(true);
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title="Edit Task" arrow>
+                        <EditIcon
+                          id="EditIcon"
+                          onClick={() => handleEditClick(task.id)}
+                        />
+                      </Tooltip>
+
+                      <Tooltip
+                        title={
+                          task.isCompleted
+                            ? "Mark as Incomplete"
+                            : "Mark as Complete"
+                        }
+                        arrow
+                      >
+                        <CheckCircleIcon
+                          id="CheckCircleIcon"
+                          onClick={() => handleCheckClick(task.id)}
+                          sx={{
+                            cursor: "pointer",
+                            color: task.isCompleted ? "#2dce00be" : "grey",
+                            padding: "5px",
+                          }}
+                        />
+                      </Tooltip>
+                    </ListItem>
+                  ))}
+                </List>
+
+                <Box id="boxText">
+                  <TextField
+                    value={newTask}
+                    onChange={(e) => setNewTask(e.target.value)}
+                    size="small"
+                    fullWidth
+                    label="Add new task"
+                  />
+
+                  <Button
+                    disabled={!newTask.trim()}
+                    onClick={handleAddTask}
+                    variant="contained"
+                  >
+                    {IdSelected ? "Save" : "Add"}
+                  </Button>
+                </Box>
+              </Box>
+            </Container>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
 
       {/* SNACKBAR */}
       <Snackbar open={showSnackbar} autoHideDuration={1500}>

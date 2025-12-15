@@ -19,6 +19,7 @@ export default function TaskReducer(state, action) {
       const tasksAddedTask = [...state, AddedTask];
 
       localStorage.setItem("tasks", JSON.stringify(tasksAddedTask));
+
       return tasksAddedTask;
     }
     case "DELETED": {
@@ -45,3 +46,4 @@ export default function TaskReducer(state, action) {
     }
   }
 }
+
